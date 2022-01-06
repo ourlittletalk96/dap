@@ -453,6 +453,13 @@ def refreshHeroes():
     logger('💪 {} heroes sent to work'.format(hero_clicks))
     goToGame()
 
+def sendAllHeroesToWork():
+    logger('🏢 Sending ALL heroes to work')
+
+    goToHeroes()
+    
+    clickBtn(images['send-all-heroes'])
+    goToGame()
 
 def main():
     """Main execution setup and loop"""
@@ -495,7 +502,8 @@ def main():
 
         if now - last["heroes"] > addRandomness(t['send_heroes_for_work'] * 60):
             last["heroes"] = now
-            refreshHeroes()
+            #refreshHeroes()
+            sendAllHeroesToWork()
 
         if now - last["login"] > addRandomness(t['check_for_login'] * 60):
             sys.stdout.flush()
