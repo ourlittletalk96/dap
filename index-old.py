@@ -10,7 +10,6 @@ import pyautogui
 import time
 import sys
 import yaml
-import subprocess as s
 
 # Load config file.
 stream = open("config.yaml", 'r')
@@ -356,9 +355,6 @@ def login():
         login_attempts = login_attempts + 1
         #TODO mto ele da erro e poco o botao n abre
         # time.sleep(10)
-        
-    if clickBtn(images['metamask'], timeout=5):
-    	logger('🎉 Clicking MetaMask')
 
     if clickBtn(images['select-wallet-2'], timeout=10):
         # sometimes the sign popup appears imediately
@@ -507,30 +503,46 @@ def main():
     # =========
     last["check_progress"] = time.time()
 
-    p=s.Popen("wmctrl -l | grep Bombcrypto | awk '{print $1}'", shell=True,stdout=s.PIPE).communicate()[0].decode('utf-8').strip()
-    win_ID=p.split('\n')
-
     while True:
         now = time.time()
+        
 
-        for i in win_ID:
-          p=s.Popen(["wmctrl","-ia",i])
-          time.sleep(2)
-          sendAllHeroesToWork()
-          sys.stdout.flush()
+        #if now - last["check_for_captcha"] > addRandomness(t['check_for_captcha'] * 60):
+        #    last["check_for_captcha"] = now
 
-          login()
-           
-          refreshFromStucked()
+        if now - last["heroes"] > addRandomness(t['send_heroes_for_work'] * 60):
+            last["heroes"] = now
+            #refreshHeroes()
+            sendAllHeroesToWork()
+
+        if now - last["login"] > addRandomness(t['check_for_login'] * 60):
+            sys.stdout.flush()
+            last["login"] = now
+            login()
             
-          refreshHeroesPositions()
+        if now - last["check_progress"] >= 600:
+            last["check_progress"] = now
+            refreshFromStucked()
+            login()
+            
 
-          #clickBtn(teasureHunt)
-          logger(None, progress_indicator=True)
+        if now - last["new_map"] > t['check_for_new_map_button']:
+            last["new_map"] = now
 
-          sys.stdout.flush()
+            if clickBtn(images['new-map']):
+                loggerMapClicked()
 
-          time.sleep(300)
+
+        if now - last["refresh_heroes"] > addRandomness( t['refresh_heroes_positions'] * 60):
+            last["refresh_heroes"] = now
+            refreshHeroesPositions()
+
+        #clickBtn(teasureHunt)
+        logger(None, progress_indicator=True)
+
+        sys.stdout.flush()
+
+        time.sleep(1)
 
 
 
